@@ -38,6 +38,7 @@ public class MaterialSet : ModuleRules
 				"AssetRegistry",
 				"PropertyEditor",
 				"MaterialEditor",
+				"RHI",
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);

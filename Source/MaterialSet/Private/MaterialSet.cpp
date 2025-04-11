@@ -343,7 +343,7 @@ void FMaterialSetModule::OnMyToolMenu()
 							SelectedNormal.Get(),
 							SelectedRoughness.Get()
 						);
-	
+						
 						FNotificationInfo Info(FText::FromString(TEXT("適用しました")));
 						Info.ExpireDuration = 2.0f;
 						FSlateNotificationManager::Get().AddNotification(Info);
@@ -363,6 +363,13 @@ void FMaterialSetModule::OnMyToolMenu()
 					SNew(SButton)
 					.Text(LOCTEXT("Next", "次へ"))
 					.OnClicked_Lambda([this]() -> FReply {
+						FMakeNode::CreateTextureSampleNode(
+							Cast<UMaterial>(SelectedMaterial.Get()),
+							SelectedAlbedo.Get(),
+							SelectedNormal.Get(),
+							SelectedRoughness.Get()
+						);
+
 						if (MyWindow.IsValid()) {
 							MyWindow.Pin() -> RequestDestroyWindow();
 						}

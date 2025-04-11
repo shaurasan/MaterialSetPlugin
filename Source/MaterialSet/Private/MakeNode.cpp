@@ -9,11 +9,14 @@
 #include "Engine/StaticMeshActor.h"
 #include "Kismet/GameplayStatics.h"
 
+#include "Editor.h"
+
 
 void FMakeNode::CreateTextureSampleNode(UMaterial* Material, UTexture2D* Albedo, UTexture2D* Normal, UTexture2D* Roughness)
 {
 
     if (!Material) return;
+
 
     int X = 100;
     int Y = 100;
@@ -38,8 +41,17 @@ void FMakeNode::CreateTextureSampleNode(UMaterial* Material, UTexture2D* Albedo,
     }
 
     UMaterialEditingLibrary::LayoutMaterialExpressions(Material);
+
     Material -> MarkPackageDirty();
+
+    {
+        FMaterialUpdateContext UpdateContext;
+        UpdateContext.AddMaterial(Material);
+    }
+
     Material -> ForceRecompileForRendering();
+    Material -> PostEditChange();
+
 
     UE_LOG(LogTemp, Warning, TEXT("applied"));
 
@@ -51,6 +63,13 @@ void FMakeNode::CreateTextureSampleNode(UMaterial* Material, UTexture2D* Albedo,
 void FMakeNode::AddConnectNode(UMaterial* Material, UTexture2D* Texture, EMaterialProperty Property, int32 X, int32 Y)
 {
     if (!Material || !Texture) return;
+
+    UMaterialExpression* OldExpression = UMaterialEditingLibrary::GetMaterialPropertyInputNode(Material, Property);
+    if (OldExpression)
+    {
+        UMaterialEditingLibrary::DeleteMaterialExpression(Material, OldExpression);    
+    }
+    
 
     auto* TextureSample = Cast<UMaterialExpressionTextureSample>(
         UMaterialEditingLibrary::CreateMaterialExpression(Material, UMaterialExpressionTextureSample::StaticClass()) 
@@ -72,7 +91,11 @@ void FMakeNode::AddConnectNode(UMaterial* Material, UTexture2D* Texture, EMateri
     //ラフネス用設定
     if (Property == MP_Roughness)
     {
-        Texture -> SRGB = false;
+        if (Texture -> SRGB)
+        {
+            Texture -> SRGB = false;
+            Texture -> PostEditChange();    
+        }
         TextureSample -> SamplerType = SAMPLERTYPE_LinearColor;
 
         UMaterialEditingLibrary::ConnectMaterialProperty(TextureSample, TEXT("R"), MP_Metallic);
