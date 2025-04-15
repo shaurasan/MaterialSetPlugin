@@ -1,7 +1,7 @@
 # MaterialSetPlugin
 substance painterの書き出し用にマテリアルを自動で変更します。
 
-5.4
+5.4,
 5.5で動作を確認しています。
 ## 導入方法
 1. Releasesから対応バージョンのzipファイルをダウンロードして解凍する。
